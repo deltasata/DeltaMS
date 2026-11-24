@@ -1,0 +1,14 @@
+# Python 3.11. Install torch first, matching your CUDA driver, e.g.:
+#   pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu118
+torch==2.5.1
+nnunetv2==2.8.1
+nibabel==5.5.0
+SimpleITK==2.5.8
+scikit-image==0.26.0
+scipy==1.17.1
+numpy==2.4.6
+pandas==3.1.1
+openpyxl==3.1.5
+matplotlib==3.11.2
+tqdm==4.70.1
+PyYAML==6.0.4
