@@ -10,7 +10,7 @@ It uses the **MSSEG-2** data (MICCAI 2021 challenge) and the challenge's own sco
 can be compared with the published ones.
 
 **Status (November 2026): work in progress.** Code for data preparation, scoring, the classical baseline and
-the first nnU-Net runs is here; results are added as experiments finish.
+the nnU-Net baseline is here; results are added as experiments finish.
 
 ## Approach
 
@@ -31,13 +31,15 @@ the first nnU-Net runs is here; results are added as experiments finish.
 
 ## First results (cross-validation, 40 patients)
 
-| Method | Lesion F1 | Dice | False lesions per lesion-free patient |
-|---|---|---|---|
-| Difference-imaging floor | 0.12 ± 0.04 | 0.20 ± 0.06 | 36 |
-| nnU-Net v2 | in progress | | |
+| Method | Lesion F1 | Dice | False lesions per lesion-free patient | Patient yes/no accuracy |
+|---|---|---|---|---|
+| Difference-imaging floor | 0.12 ± 0.04 | 0.20 ± 0.06 | 36 | 0.75 |
+| nnU-Net v2 (3d_fullres, Dice loss without smoothing) | 0.65 ± 0.16 | 0.57 ± 0.11 | 0.0 | 0.90 |
 
-(Mean over held-out patients; ± is the spread across the 5 folds. Best published test-set results for
-comparison: lesion F1 0.54, Dice 0.51.)
+Mean over held-out patients (29 with new lesions, 11 without); ± is the spread across the 5 folds. For
+reference, the best published test-set results are lesion F1 0.54 and Dice 0.51, but on 60 different patients
+that include scanners absent from training, so the numbers above are **not** a leaderboard comparison. The
+nnU-Net baseline makes no false detections on lesion-free patients; its errors are missed lesions.
 
 **Finding so far:** with its default loss, nnU-Net learned to predict "no lesion" everywhere in every fold
 after about 10-20 epochs and never recovered. The soft Dice loss with a small smoothing constant gives a
