@@ -88,6 +88,11 @@ python scripts/report_cv.py --scores results/E1b/heldout_scores.csv --pred "{pre
 Only code and group-level results are published here: no images, masks, per-patient numbers or trained
 weights, as required by the data-use agreement.
 
+## Licence
+
+The code is released under the MIT licence (see `LICENSE`). The MSSEG-2 data are not covered by it and remain
+under the OFSEP data-use agreement.
+
 ## Acknowledgements
 
 This work was carried out in collaboration with The Observatoire Français de la Sclérose en Plaques (OFSEP),
