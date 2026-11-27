@@ -35,11 +35,23 @@ the nnU-Net baseline is here; results are added as experiments finish.
 |---|---|---|---|---|
 | Difference-imaging floor | 0.12 ± 0.04 | 0.20 ± 0.06 | 36 | 0.75 |
 | nnU-Net v2 (3d_fullres, Dice loss without smoothing) | 0.65 ± 0.16 | 0.57 ± 0.11 | 0.0 | 0.90 |
+| nnU-Net v2, residual encoder (ResEnc M), same loss | 0.56 ± 0.13 | 0.52 ± 0.11 | 0.0 | 0.88 |
 
 Mean over held-out patients (29 with new lesions, 11 without); ± is the spread across the 5 folds. For
 reference, the best published test-set results are lesion F1 0.54 and Dice 0.51, but on 60 different patients
 that include scanners absent from training, so the numbers above are **not** a leaderboard comparison. The
 nnU-Net baseline makes no false detections on lesion-free patients; its errors are missed lesions.
+
+**The larger residual-encoder network did worse.** Paired over the 29 patients with new lesions, its lesion
+F1 is 0.09 lower (95% bootstrap interval 0.01-0.20 lower), so by the rule fixed before training it is dropped
+and the default network stays the baseline.
+
+**Lesion confidences.** The network's lesion probabilities are almost all 0 or 1, so the raw value is not a
+usable confidence: it says ~100% for every lesion while about three in four are real (judged by the official
+scorer, lesion by lesion). A two-parameter correction (Platt scaling of the mean lesion probability), fitted on
+each fold's other folds only, brings the Brier score from 0.26 to 0.15 and the calibration error from 0.26 to
+0.06. Moving the probability threshold barely changes the results: missed lesions get probabilities near zero,
+not just below the threshold.
 
 **Finding so far:** with its default loss, nnU-Net learned to predict "no lesion" everywhere in every fold
 after about 10-20 epochs and never recovered. The soft Dice loss with a small smoothing constant gives a
@@ -58,6 +70,10 @@ scripts/
   train_folds.sh          trains nnU-Net folds on whichever GPUs are free
   score_nnunet_cv.py      scores the held-out predictions of a 5-fold nnU-Net run
   report_cv.py            summary: mean per patient, spread across folds
+  compare_runs.py         paired comparison of two runs (bootstrap interval, pre-set decision rule)
+  predict_heldout_probs.sh  re-predicts held-out folds, saving lesion probabilities
+  analyse_confidence.py   threshold sweep and calibration of the raw lesion probabilities
+  recalibrate.py          cross-fitted recalibration of lesion confidences
 env.sh                    keeps every cache, model and temporary file inside the project folder
 requirements.txt
 ```
@@ -81,6 +97,10 @@ python scripts/floor_cv.py
 scripts/train_folds.sh 3d_fullres nnUNetTrainerDiceCELoss_noSmooth nnUNetPlans "0 1 2 3 4"
 python scripts/score_nnunet_cv.py --trainer nnUNetTrainerDiceCELoss_noSmooth --name E1b
 python scripts/report_cv.py --scores results/E1b/heldout_scores.csv --pred "{pred_path}"
+scripts/predict_heldout_probs.sh nnUNetTrainerDiceCELoss_noSmooth nnUNetPlans results/E1b/probs 0
+cd scripts && python analyse_confidence.py --probs ../results/E1b/probs \
+    --trainer nnUNetTrainerDiceCELoss_noSmooth --name E1b
+python recalibrate.py --probs ../results/E1b/probs --name E1b
 ```
 
 ## Data use
